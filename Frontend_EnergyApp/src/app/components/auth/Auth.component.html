@@ -1,0 +1,98 @@
+<div class="container">
+  <h2 class="text-center">{{ isRegistering ? 'Register' : 'Login' }}</h2>
+
+  <form #authForm="ngForm" (ngSubmit)="isRegistering ? onRegisterUser() : onLoginUser()">
+
+    <div *ngIf="isRegistering" class="form-group">
+      <label for="firstName">First Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="firstName"
+        [(ngModel)]="firstName"
+        name="firstName"
+        #firstNameInput="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="firstNameInput.invalid && firstNameInput.touched" class="text-danger">
+        <small *ngIf="firstNameInput.errors?.['required']">First Name is required.</small>
+        <small *ngIf="firstNameInput.errors?.['minlength']">First Name must be at least 2 characters long.</small>
+      </div>
+    </div>
+
+    <div *ngIf="isRegistering" class="form-group">
+      <label for="secondName">Second Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="secondName"
+        [(ngModel)]="secondName"
+        name="secondName"
+        #secondNameInput="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="secondNameInput.invalid && secondNameInput.touched" class="text-danger">
+        <small *ngIf="secondNameInput.errors?.['required']">Second Name is required.</small>
+        <small *ngIf="secondNameInput.errors?.['minlength']">Second Name must be at least 2 characters long.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        [(ngModel)]="email"
+        name="email"
+        #emailInput="ngModel"
+        required
+        email
+      >
+
+      <div *ngIf="emailInput.invalid && emailInput.touched" class="text-danger">
+        <small *ngIf="emailInput.errors?.['required']">Email is required.</small>
+        <small *ngIf="emailInput.errors?.['email']">Enter a valid email address.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        [(ngModel)]="password"
+        name="password"
+        #passwordInput="ngModel"
+        required
+        minlength="6"
+      >
+      <div *ngIf="passwordInput.invalid && passwordInput.touched" class="text-danger">
+        <small *ngIf="passwordInput.errors?.['required']">Password is required.</small>
+        <small *ngIf="passwordInput.errors?.['minlength']">Password must be at least 6 characters long.</small>
+      </div>
+    </div>
+
+    <div *ngIf="isErrorMessage" class="alert alert-danger">
+      The credentials are invalid
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary btn-block"
+      [disabled]="authForm.invalid">
+      {{ isRegistering ? 'Register' : 'Login' }}
+    </button>
+  </form>
+
+  <button
+    class="btn btn-link"
+    (click)="toggleForm()">
+    {{ isRegistering ? 'Already have an account? Login here' : 'Don\'t have an account? Register here' }}
+  </button>
+</div>

@@ -1,0 +1,210 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-logo">
+      <h2>Energy System Management</h2>
+    </div>
+
+    <div class="navbar-buttons">
+      <button class="btn" (click)="goToAllDevices()">All devices</button>
+      <button class="btn" (click)="goToAllUsers()">All users</button>
+      <button class="btn" (click)="goToHomePage()">Home</button>
+      <button class="btn" (click)="viewUserDetails()">Profile</button>
+      <button class="btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-container">
+  <button class="create-button" (click)="createUser()">Create user</button>
+  <h2><b>Users</b></h2>
+  <table class="user-table" *ngIf="users.length; else noUsers">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>First Name</th>
+      <th>Second Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td>{{ user.firstName }}</td>
+      <td>{{ user.secondName }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+        <button class="edit-buttons" (click)="deleteUser(user.id)">Delete</button>
+        <button class="edit-buttons" (click)="selectUser(user)">Edit</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noUsers>
+    <p>No users were found.</p>
+  </ng-template>
+
+  <div *ngIf="editMode" class="edit-form">
+    <h3>Edit User</h3>
+
+    <label>First Name:
+      <input
+        type="text"
+        class="form-control"
+        id="firstName"
+        [(ngModel)]="selectedUser!.firstName"
+        name="firstName"
+        #firstNameInput="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="firstNameInput.invalid && firstNameInput.touched" class="text-danger">
+        <small *ngIf="firstNameInput.errors?.['required']">First Name is required.</small>
+        <small *ngIf="firstNameInput.errors?.['minlength']">First Name must be at least 2 characters long.</small>
+      </div>
+    </label>
+
+    <label>Second Name:
+      <input
+        type="text"
+        class="form-control"
+        id="secondName"
+        [(ngModel)]="selectedUser!.secondName"
+        name="secondName"
+        #secondNameInput="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="secondNameInput.invalid && secondNameInput.touched" class="text-danger">
+        <small *ngIf="secondNameInput.errors?.['required']">Second Name is required.</small>
+        <small *ngIf="secondNameInput.errors?.['minlength']">Second Name must be at least 2 characters long.</small>
+      </div>
+    </label>
+
+    <label>Email:
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        [(ngModel)]="selectedUser!.email"
+        name="email"
+        #emailInput="ngModel"
+        required
+        email
+      >
+
+      <div *ngIf="emailInput.invalid && emailInput.touched" class="text-danger">
+        <small *ngIf="emailInput.errors?.['required']">Email is required.</small>
+        <small *ngIf="emailInput.errors?.['email']">Enter a valid email address.</small>
+      </div>
+    </label>
+
+    <label>Role:</label>
+    <div class="role-selection">
+      <label>
+        <input
+          type="radio"
+          name="role"
+          [value]="'ADMIN'"
+          [(ngModel)]="selectedUser!.role"
+        />
+        Admin
+      </label>
+      <label>
+        <input
+          type="radio"
+          name="role"
+          [value]="'USER'"
+          [(ngModel)]="selectedUser!.role"
+        />
+        User
+      </label>
+    </div>
+
+    <button class="edit-buttons" (click)="editMode = false">Cancel</button>
+    <button class="edit-buttons" (click)="updateUser()" [disabled]="firstNameInput.invalid || secondNameInput.invalid ||emailInput.invalid">Save</button>
+  </div>
+
+  <div *ngIf="createMode" class="edit-form">
+    <h3>Create User</h3>
+
+    <label>First Name:
+      <input
+        type="text"
+        class="form-control"
+        id="firstName2"
+        [(ngModel)]="firstName"
+        name="firstName2"
+        #firstName2Input="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="firstName2Input.invalid && firstName2Input.touched" class="text-danger">
+        <small *ngIf="firstName2Input.errors?.['required']">First Name is required.</small>
+        <small *ngIf="firstName2Input.errors?.['minlength']">First Name must be at least 2 characters long.</small>
+      </div>
+    </label>
+
+    <label>Second Name:
+      <input
+        type="text"
+        class="form-control"
+        id="secondName2"
+        [(ngModel)]="secondName"
+        name="secondName2"
+        #secondName2Input="ngModel"
+        required
+        minlength="2"
+      >
+
+      <div *ngIf="secondName2Input.invalid && secondName2Input.touched" class="text-danger">
+        <small *ngIf="secondName2Input.errors?.['required']">Second Name is required.</small>
+        <small *ngIf="secondName2Input.errors?.['minlength']">Second Name must be at least 2 characters long.</small>
+      </div>
+    </label>
+
+    <label>Email:
+      <input
+        type="email"
+        class="form-control"
+        id="email2"
+        [(ngModel)]="email"
+        name="email2"
+        #email2Input="ngModel"
+        required
+        email
+      >
+
+      <div *ngIf="email2Input.invalid && email2Input.touched" class="text-danger">
+        <small *ngIf="email2Input.errors?.['required']">Email is required.</small>
+        <small *ngIf="email2Input.errors?.['email']">Enter a valid email address.</small>
+      </div>
+    </label>
+
+    <label>Password:
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        [(ngModel)]="password"
+        name="password"
+        #passwordInput="ngModel"
+        required
+        minlength="6"
+      >
+      <div *ngIf="passwordInput.invalid && passwordInput.touched" class="text-danger">
+        <small *ngIf="passwordInput.errors?.['required']">Password is required.</small>
+        <small *ngIf="passwordInput.errors?.['minlength']">Password must be at least 6 characters long.</small>
+      </div>
+    </label>
+
+    <button class="edit-buttons" (click)="createMode = false">Cancel</button>
+    <button class="edit-buttons" (click)="onCreateUser()" [disabled]="firstName2Input.invalid || email2Input.invalid || secondName2Input.invalid || passwordInput.invalid">Create</button>
+  </div>
+</div>

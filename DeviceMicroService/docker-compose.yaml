@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: postgres-device
+    image: postgres:16-alpine3.18
+    ports:
+      - "5433:5432" # expunere locală a portului Postgres
+    environment:
+      - POSTGRES_DB=device_ms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cata1609
+    volumes:
+      - device:/var/lib/postgresql/data
+
+  app:
+    container_name: devices
+    build: .
+    ports:
+      - "8081:8081" # expunere locală a portului aplicației
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/device_ms
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=cata1609
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  device:

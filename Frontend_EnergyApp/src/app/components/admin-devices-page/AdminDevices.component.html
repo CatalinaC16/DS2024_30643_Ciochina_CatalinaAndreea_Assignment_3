@@ -1,0 +1,191 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-logo">
+      <h2>Energy System Management</h2>
+    </div>
+
+    <div class="navbar-buttons">
+      <button class="btn" (click)="goToAllDevices()">All devices</button>
+      <button class="btn" (click)="goToAllUsers()">All users</button>
+      <button class="btn" (click)="goToHomePage()">Home</button>
+      <button class="btn" (click)="viewUserDetails()">Profile</button>
+      <button class="btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-container">
+  <button (click)="onCreateDevice()" class="create-button">Create device</button>
+  <h2><b>Devices</b></h2>
+  <table class="user-table" *ngIf="devices.length; else noDevices">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>Address</th>
+      <th>Description</th>
+      <th>Maximum Hourly Energy Consumption</th>
+      <th>User Id</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let device of devices">
+      <td>{{ device.id }}</td>
+      <td>{{ device.address }}</td>
+      <td>{{ device.description }}</td>
+      <td>{{ device.maxHourlyEnergyConsumption }}</td>
+      <td>{{ device.user_id }}</td>
+      <td>
+        <button (click)="deleteDevice(device.id)" class="edit-buttons">Delete</button>
+        <button (click)="onEditDevice(device)" class="edit-buttons">Edit</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noDevices>
+    <p>No devices were found.</p>
+  </ng-template>
+
+  <div *ngIf="editMode" class="edit-form">
+    <h3>Edit Device</h3>
+
+    <label>Address:
+      <input
+        type="text"
+        [(ngModel)]="selectedDevice!.address"
+        name="address"
+        id="address"
+        class="form-control"
+        required
+        minlength="5"
+        #addressInput="ngModel"
+      />
+      <div *ngIf="addressInput.invalid && addressInput.touched" class="text-danger">
+        <small *ngIf="addressInput.errors?.['required']">Address is required.</small>
+        <small *ngIf="addressInput.errors?.['minlength']">Address must be at least 5 characters long.</small>
+      </div>
+    </label>
+
+    <label>Description:
+      <input
+        type="text"
+        class="form-control"
+        id="description"
+        [(ngModel)]="selectedDevice!.description"
+        name="description"
+        required
+        minlength="5"
+        #descriptionInput="ngModel"
+      />
+      <div *ngIf="descriptionInput.invalid && descriptionInput.touched" class="text-danger">
+        <small *ngIf="descriptionInput.errors?.['required']">Description is required.</small>
+        <small *ngIf="descriptionInput.errors?.['minlength']">Description must be at least 5 characters long.</small>
+      </div>
+    </label>
+
+    <label>Max Hourly Energy Consumption:
+      <input
+        [(ngModel)]="selectedDevice!.maxHourlyEnergyConsumption"
+        name="maxHourlyEnergyConsumption"
+        type="number"
+        class="form-control"
+        id="maxHourlyEnergyConsumption"
+        required
+        min="1"
+        #energyConsumptionInput="ngModel"
+      />
+      <div *ngIf="energyConsumptionInput.invalid && energyConsumptionInput.touched" class="text-danger">
+        <small *ngIf="energyConsumptionInput.errors?.['required']">Max Hourly Energy Consumption is required.</small>
+        <small *ngIf="energyConsumptionInput.errors?.['min']">Value must be greater than 0.</small>
+      </div>
+    </label>
+
+    <label>User:</label>
+    <select [(ngModel)]="selectedDevice!.user_id" #userSelectInput="ngModel" required name="userSelect" class="select-user">
+      <option value="" disabled>Select a user</option>
+      <option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.secondName }}</option>
+    </select>
+    <div *ngIf="userSelectInput.invalid && userSelectInput.touched" class="text-danger">
+      <small>Selecting a user is required.</small>
+    </div>
+
+    <button (click)="cancelEditMode()" class="edit-buttons">Cancel</button>
+    <button (click)="updateDevice()"
+            [disabled]="addressInput.invalid || descriptionInput.invalid || energyConsumptionInput.invalid || userSelectInput.invalid"
+            class="edit-buttons">Save
+    </button>
+  </div>
+
+  <div *ngIf="createMode" class="edit-form">
+    <h3>Create New Device</h3>
+
+    <label>Address:
+      <input
+        type="text"
+        class="form-control"
+        id="address2"
+        [(ngModel)]="selectedDevice!.address"
+        name="address"
+        required
+        minlength="5"
+        #addressInput2Create="ngModel"
+      />
+      <div *ngIf="addressInput2Create.invalid && addressInput2Create.touched" class="text-danger">
+        <small *ngIf="addressInput2Create.errors?.['required']">Address is required.</small>
+        <small *ngIf="addressInput2Create.errors?.['minlength']">Address must be at least 5 characters long.</small>
+      </div>
+    </label>
+
+    <label>Description:
+      <input
+        type="text"
+        class="form-control"
+        id="description2"
+        [(ngModel)]="selectedDevice!.description"
+        name="description"
+        required
+        minlength="5"
+        #descriptionInput2Create="ngModel"
+      />
+      <div *ngIf="descriptionInput2Create.invalid && descriptionInput2Create.touched" class="text-danger">
+        <small *ngIf="descriptionInput2Create.errors?.['required']">Description is required.</small>
+        <small *ngIf="descriptionInput2Create.errors?.['minlength']">Description must be at least 5 characters
+          long.</small>
+      </div>
+    </label>
+
+    <label>Max Hourly Energy Consumption:
+      <input
+        class="form-control"
+        id="maxHourlyEnergyConsumption2"
+        [(ngModel)]="selectedDevice!.maxHourlyEnergyConsumption"
+        name="maxHourlyEnergyConsumption"
+        type="number"
+        required
+        min="1"
+        #energyConsumptionInput2Create="ngModel"
+      />
+      <div *ngIf="energyConsumptionInput2Create.invalid && energyConsumptionInput2Create.touched" class="text-danger">
+        <small *ngIf="energyConsumptionInput2Create.errors?.['required']">Max Hourly Energy Consumption is
+          required.</small>
+        <small *ngIf="energyConsumptionInput2Create.errors?.['min']">Value must be greater than 0.</small>
+      </div>
+    </label>
+
+    <label>User:</label>
+    <select [(ngModel)]="selectedDevice!.user_id" #userSelectInput2="ngModel" required name="userSelect" class="select-user">
+      <option value="" disabled>Select a user</option>
+      <option *ngFor="let user of users" [value]="user.id">{{ user.firstName }} {{ user.secondName }}</option>
+    </select>
+    <div *ngIf="userSelectInput2.invalid && userSelectInput2.touched" class="text-danger">
+      <small>Selecting a user is required.</small>
+    </div>
+
+    <button (click)="cancelEditMode()" class="edit-buttons">Cancel</button>
+    <button (click)="createDevice()"
+            [disabled]="addressInput2Create.invalid || descriptionInput2Create.invalid || energyConsumptionInput2Create.invalid || userSelectInput2.invalid"
+            class="edit-buttons">Create
+    </button>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres-measure
+    image: postgres:16-alpine3.18
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=measure_ms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cata1609
+    volumes:
+      - measure:/var/lib/postgresql/data
+  app:
+    container_name: measure
+    image: measure
+    build: .
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/measure_ms
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=cata1609
+    links:
+      - postgres
+
+volumes:
+  measure:

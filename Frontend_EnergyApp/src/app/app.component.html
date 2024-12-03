@@ -1,0 +1,8 @@
+<div *ngIf="alerts.length > 0" class="alerts-container">
+  <div *ngFor="let alert of alerts; let i = index" class="alert">
+    <p>{{ alert.content }}</p>
+    <button (click)="closeAlert(i)" class="close-btn">X</button>
+  </div>
+</div>
+
+<router-outlet></router-outlet>
