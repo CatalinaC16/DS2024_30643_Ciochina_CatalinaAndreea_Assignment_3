@@ -8,6 +8,7 @@ import {RegisterRequestDTO} from "../dtos/RegisterRequestDto";
 })
 export class AuthService {
   private urlAPI = 'http://localhost:8084/api/auth';
+  private username = '';
 
   constructor(private http: HttpClient) {
   }

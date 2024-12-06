@@ -18,6 +18,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import { NgChartsModule } from 'ng2-charts';
 import {MatNativeDateModule} from "@angular/material/core";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ChatComponent} from "./components/chat/Chat.component";
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
     MyDevicesComponent,
     NotAuthComponent,
     AdminUsersComponent,
-    AdminDevicesComponent
+    AdminDevicesComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,

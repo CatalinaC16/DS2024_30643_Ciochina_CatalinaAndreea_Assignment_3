@@ -1,0 +1,17 @@
+<div *ngIf="chats.length === 0" class="no-chats">
+  <p>No active chats. Start a new conversation!</p>
+  <button (click)="startNewChat()" class="start-chat-button">Start Chat</button>
+</div>
+
+<div *ngFor="let chat of chats" class="chat-container">
+  <h3 class="chat-title">{{ chat.user }}</h3>
+  <div *ngFor="let message of chat.messages" class="message">
+    <strong>{{ message.senderId }}:</strong> {{ message.content }}
+  </div>
+  <div *ngIf="chat.typing" class="typing-notification">User is typing...</div>
+
+  <div class="message-input">
+    <input [(ngModel)]="newMessage" placeholder="Type a message" class="message-box"/>
+    <button (click)="sendMessage(chat.user)" class="send-button">Send</button>
+  </div>
+</div>

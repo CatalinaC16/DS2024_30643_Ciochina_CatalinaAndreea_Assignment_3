@@ -1,0 +1,68 @@
+/* General styling for the chat component */
+.chat-container {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.chat-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin: 5px 0;
+}
+
+.typing-notification {
+  font-style: italic;
+  color: #808080FF;
+}
+
+.no-chats {
+  text-align: center;
+}
+
+.start-chat-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.start-chat-button:hover {
+  background-color: #45a049;
+}
+
+.message-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+.message-box {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.send-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.send-button:hover {
+  background-color: #45a049;
+}
