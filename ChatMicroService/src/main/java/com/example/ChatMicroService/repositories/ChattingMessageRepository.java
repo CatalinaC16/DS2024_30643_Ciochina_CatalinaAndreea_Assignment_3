@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface ChattingMessageRepository extends JpaRepository<Message, UUID> {
-    List<Message> findBySenderIdOrReceiverId(String senderId, String receiverId);
+    List<Message> findBySenderIdOrReceiverId(UUID senderId, UUID receiverId);
 }

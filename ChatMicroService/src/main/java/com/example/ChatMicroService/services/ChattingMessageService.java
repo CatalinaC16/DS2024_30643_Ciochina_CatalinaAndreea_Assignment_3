@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,23 @@ public class ChattingMessageService {
         return this.chattingMessageRepository.save(message1);
     }
 
-    public List<Message> getMessages(String sender, String receiver) {
-        return this.chattingMessageRepository.findAll();
+    public void markAsRead(UUID messageId) {
+        Message message = this.chattingMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+        message.setSeen(true);
+        this.chattingMessageRepository.save(message);
+
+        System.out.println("Message marked as read: " + messageId);
+    }
+
+    public List<ChattingMessageDTO> getConversation(UUID userId1, UUID userId2) {
+        List<Message> messages = this.chattingMessageRepository.findBySenderIdOrReceiverId(userId1, userId2);
+        return messages.stream().map(this.chattingMessageMapper::toDTO).collect(Collectors.toList());
+    }
+
+    public List<ChattingMessageDTO> getConversationOfAdmin(UUID adminId) {
+        List<Message> messages = this.chattingMessageRepository.findAll();
+        messages = messages.stream().filter(x -> x.getReceiverId().equals(adminId)).collect(Collectors.toList());
+        return messages.stream().map(this.chattingMessageMapper::toDTO).collect(Collectors.toList());
     }
 }

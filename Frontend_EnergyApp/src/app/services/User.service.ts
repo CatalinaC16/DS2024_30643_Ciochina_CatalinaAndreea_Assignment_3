@@ -19,6 +19,11 @@ export class UserService {
     return this.http.get<UserDto>(`${this.urlAPI}/getByEmail/${email}`, {headers});
   }
 
+  getAllUsers(): Observable<UserDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<UserDto[]>(`${this.urlAPI}/getAll}`, {headers});
+  }
+
   updateUser(userId: string, userDTO: UserDto): Observable<any> {
     const headers = this.getHeaders();
     return this.http.put<any>(`${this.urlAPI}/update/${userId}`, userDTO, {headers})

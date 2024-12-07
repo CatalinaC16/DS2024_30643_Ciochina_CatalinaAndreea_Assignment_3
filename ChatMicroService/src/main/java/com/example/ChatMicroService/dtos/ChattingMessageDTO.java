@@ -19,4 +19,5 @@ public class ChattingMessageDTO {
     private String receiverId;
     private boolean isSeen;
     private LocalDateTime timestamp;
+    private boolean typing;
 }

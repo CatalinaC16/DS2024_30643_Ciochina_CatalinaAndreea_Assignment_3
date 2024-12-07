@@ -1,4 +1,13 @@
-<div *ngIf="chats.length === 0" class="no-chats">
+<!-- Chat Component - HTML -->
+
+<div *ngIf="isAdmin && newMessageNotifications.length > 0" class="notifications">
+  <h4>You have new messages:</h4>
+  <div *ngFor="let notification of newMessageNotifications" class="notification" (click)="openConversation(notification)">
+    New message from: {{ notification.senderId }}
+  </div>
+</div>
+
+<div *ngIf="chats.length === 0 && !isAdmin" class="no-chats">
   <p>No active chats. Start a new conversation!</p>
   <button (click)="startNewChat()" class="start-chat-button">Start Chat</button>
 </div>
@@ -6,12 +15,12 @@
 <div *ngFor="let chat of chats" class="chat-container">
   <h3 class="chat-title">{{ chat.user }}</h3>
   <div *ngFor="let message of chat.messages" class="message">
-    <strong>{{ message.senderId }}:</strong> {{ message.content }}
+    <strong>{{ message.senderId === currentUser ? 'You' : message.senderId }}:</strong> {{ message.content }}
+    <span *ngIf="message.seen" class="read-status">(Read)</span>
   </div>
-  <div *ngIf="chat.typing" class="typing-notification">User is typing...</div>
-
-  <div class="message-input">
-    <input [(ngModel)]="newMessage" placeholder="Type a message" class="message-box"/>
-    <button (click)="sendMessage(chat.user)" class="send-button">Send</button>
+  <div *ngIf="chat.typing" class="typing-notification">
+    {{ chat.user === currentUser ? 'You are typing...' : 'User is typing...' }}
   </div>
+  <textarea [(ngModel)]="newMessage" (input)="sendTypingNotification(chat.user)" placeholder="Write a message..."></textarea>
+  <button (click)="sendMessage(chat.user)">Send</button>
 </div>

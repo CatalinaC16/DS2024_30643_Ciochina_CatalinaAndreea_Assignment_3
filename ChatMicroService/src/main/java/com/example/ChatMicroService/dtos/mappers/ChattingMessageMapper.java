@@ -5,6 +5,7 @@ import com.example.ChatMicroService.entities.Message;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 public class ChattingMessageMapper {
@@ -12,10 +13,11 @@ public class ChattingMessageMapper {
         return ChattingMessageDTO.builder()
                 .id(message.getId())
                 .content(message.getContent())
-                .senderId(message.getSenderId())
-                .receiverId(message.getReceiverId())
+                .senderId(String.valueOf(message.getSenderId()))
+                .receiverId(String.valueOf(message.getReceiverId()))
                 .isSeen(message.isSeen())
                 .timestamp(message.getTimestamp())
+                .typing(message.isTyping())
                 .build();
     }
 
@@ -23,10 +25,11 @@ public class ChattingMessageMapper {
         return Message.builder()
                 .id(dto.getId())
                 .content(dto.getContent())
-                .senderId(dto.getSenderId())
-                .receiverId(dto.getReceiverId())
+                .senderId(UUID.fromString(dto.getSenderId()))
+                .receiverId(UUID.fromString(dto.getReceiverId()))
                 .isSeen(dto.isSeen())
                 .timestamp(LocalDateTime.now())
+                .typing(dto.isTyping())
                 .build();
     }
 }

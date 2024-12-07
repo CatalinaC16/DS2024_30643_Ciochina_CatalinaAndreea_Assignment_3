@@ -33,14 +33,17 @@ public class Message implements Serializable {
     private String content;
 
     @Column(name = "sender_id", nullable = false)
-    private String senderId;
+    private UUID senderId;
 
     @Column(name = "receiver_id", nullable = false)
-    private String receiverId;
+    private UUID receiverId;
 
     @Column(name = "isSeen", nullable = false)
     private boolean isSeen;
 
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
+
+    @Column(name = "typing", nullable = false)
+    private boolean typing;
 }
