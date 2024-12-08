@@ -37,11 +37,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
             handleTypingNotification(chatMessage);
             return;
         }
-
-        // Salvează mesajul
         this.chattingMessageService.saveMessage(chatMessage);
 
-        // Forwardează mesajul către receiver
         WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId());
         if (receiverSession != null && receiverSession.isOpen()) {
             receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
