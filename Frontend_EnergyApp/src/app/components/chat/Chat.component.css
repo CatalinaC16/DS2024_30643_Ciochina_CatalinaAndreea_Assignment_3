@@ -132,3 +132,19 @@ h2 {
   color: #333;
   margin-bottom: 1rem;
 }
+
+.message {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+
+.message.seen {
+  opacity: 0.8;
+}
+
+.seen-indicator {
+  font-size: 0.8rem;
+  color: #4caf50;
+  margin-left: 5px;
+}

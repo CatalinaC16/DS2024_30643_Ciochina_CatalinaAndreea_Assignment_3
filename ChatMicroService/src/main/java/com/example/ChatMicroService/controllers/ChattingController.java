@@ -23,11 +23,6 @@ public class ChattingController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/read/{messageId}")
-    public void markMessageAsRead(@PathVariable UUID messageId) {
-        this.messageService.markAsRead(messageId);
-    }
-
     @GetMapping("/getConversation/{userId1}/{userId2}")
     public List<ChattingMessageDTO> getConversation(@PathVariable UUID userId1, @PathVariable UUID userId2) {
         return this.messageService.getConversation(userId1, userId2);

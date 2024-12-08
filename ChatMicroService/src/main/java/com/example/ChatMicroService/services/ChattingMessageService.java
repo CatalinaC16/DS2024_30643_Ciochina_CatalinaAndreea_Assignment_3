@@ -24,15 +24,6 @@ public class ChattingMessageService {
         return this.chattingMessageRepository.save(message1);
     }
 
-    public void markAsRead(UUID messageId) {
-        Message message = this.chattingMessageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
-        message.setSeen(true);
-        this.chattingMessageRepository.save(message);
-
-        System.out.println("Message marked as read: " + messageId);
-    }
-
     public List<ChattingMessageDTO> getConversation(UUID userId1, UUID userId2) {
         List<Message> messages = this.chattingMessageRepository.findBySenderIdOrReceiverId(userId1, userId2);
         return messages.stream().map(this.chattingMessageMapper::toDTO).collect(Collectors.toList());

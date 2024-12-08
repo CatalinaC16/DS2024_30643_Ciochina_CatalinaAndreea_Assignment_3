@@ -12,7 +12,6 @@ import {UserDto} from "../../dtos/UserDto";
 })
 export class ChatComponent implements OnInit {
   chats: { user: string; messages: MessageDto[]; typing: boolean; newMessage: string }[] = [];
-  newMessage: string = '';
   currentUser: string = '';
   adminId: string = 'bc5f4afc-8990-423a-8e23-a5cabb9ef24a';
   adminName: string = "Admin";
@@ -45,17 +44,29 @@ export class ChatComponent implements OnInit {
           this.chatService.newMessageNotificationSubject.subscribe((message) => {
             if (message.typing) {
               this.updateTypingStatus(message.senderId, true);
+            } else if (message.seen) {
+              console.log("Seen notification for message:", message.id);
+              this.updateMessageStatus(message);
             } else {
-              let chat = this.chats.find(c => c.user === message.senderId || c.user === message.receiverId);
-              if (!chat) {
-                chat = {user: message.senderId, messages: [], typing: false, newMessage: ''};
-                this.chats.push(chat);
+              if (this.isAdmin) {
+
+                const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
+                if (!alreadyNotified) {
+                  this.newMessageNotifications.push(message);
+                  console.log('New message added to notifications:', message);
+                }
+              } else {
+
+                let chat = this.chats.find((c) => c.user === message.senderId || c.user === message.receiverId);
+                if (!chat) {
+                  chat = {user: message.senderId, messages: [], typing: false, newMessage: ''};
+                  this.chats.push(chat);
+                }
+                chat.messages.push(message);
+                chat.typing = false;
               }
-              chat.messages.push(message);
-              chat.typing = false;
             }
           });
-
         },
         (error) => {
           console.error(error);
@@ -73,7 +84,7 @@ export class ChatComponent implements OnInit {
   sendMessage(receiver: string): void {
     let chat = this.chats.find((c) => c.user === receiver);
     if (!chat) {
-      chat = { user: receiver, messages: [], typing: false, newMessage: '' };
+      chat = {user: receiver, messages: [], typing: false, newMessage: ''};
       this.chats.push(chat);
     }
 
@@ -106,24 +117,42 @@ export class ChatComponent implements OnInit {
   }
 
   updateMessageStatus(message: MessageDto) {
-    let chat = this.chats.find(c => c.user === message.senderId);
+    const chat = this.chats.find(c => c.user === message.receiverId);
+    console.log(this.chats);
+
     if (chat) {
-      let msg = chat.messages.find(m => m.senderId === message.senderId && m.content === message.content);
-      if (msg) {
-        msg.seen = true;
-      }
+      console.log(chat);
+
+      chat.messages.forEach((msg) => {
+        if (!msg.seen) {
+          msg.seen = true;
+          console.log(`Message ${msg.id} marked as seen`);
+        }
+      });
     }
   }
 
   openConversation(notification: MessageDto): void {
+    console.log('openConversation called with notification:', notification);
+
     let chat = this.chats.find((c) => c.user === notification.senderId);
     if (!chat) {
       chat = {user: notification.senderId, messages: [], typing: false, newMessage: ''};
       this.chats.push(chat);
     }
+
     chat.messages.push(notification);
 
-    this.newMessageNotifications = this.newMessageNotifications.filter(n => n !== notification);
+    const unseenMessages = chat.messages.filter((m) => !m.seen && m.senderId !== this.currentUser);
+    console.log('Unseen messages in chat:', unseenMessages);
+
+    if (unseenMessages.length > 0) {
+      console.log('Marking unseen messages as seen');
+      this.chatService.markMessagesAsSeen(unseenMessages);
+      unseenMessages.forEach((m) => (m.seen = true));
+    }
+
+    this.newMessageNotifications = this.newMessageNotifications.filter((n) => n.id !== notification.id);
   }
 
 

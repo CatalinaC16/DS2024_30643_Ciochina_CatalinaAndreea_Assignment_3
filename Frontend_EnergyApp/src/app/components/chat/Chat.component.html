@@ -1,6 +1,7 @@
 <div *ngIf="isAdmin && newMessageNotifications.length > 0" class="notifications">
   <h4>You have new messages:</h4>
-  <div *ngFor="let notification of newMessageNotifications" class="notification" (click)="openConversation(notification)">
+  <div *ngFor="let notification of newMessageNotifications" class="notification"
+       (click)="openConversation(notification)">
     New message from: {{ notification.senderId }}
   </div>
 </div>
@@ -12,13 +13,19 @@
 
 <div *ngFor="let chat of chats" class="chat-container">
   <h3 class="chat-title">{{ chat.user }}</h3>
-  <div *ngFor="let message of chat.messages" class="message">
-    <strong>{{ message.senderId === currentUser ? 'You' : message.senderId }}:</strong> {{ message.content }}
-    <span *ngIf="message.seen" class="read-status">(Read)</span>
+
+  <div *ngFor="let message of chat.messages">
+    <div class="message" [class.seen]="message.seen">
+      {{ message.content }}
+      <span *ngIf="message.seen&&currentUser!=message.receiverId" class="seen-indicator">✔✔</span>
+    </div>
   </div>
+
+
   <div *ngIf="chat.typing" class="typing-notification">
     {{ chat.user === currentUser ? 'You are typing...' : 'User is typing...' }}
   </div>
+
   <textarea [(ngModel)]="chat.newMessage"
             (input)="sendTypingNotification(chat.user)"
             placeholder="Write a message..."></textarea>

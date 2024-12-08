@@ -1,19 +1,16 @@
-import { Injectable } from '@angular/core';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Observable, Subject } from 'rxjs';
-import { MessageDto } from '../dtos/MessageDto';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from './Auth.service';
+import {Injectable} from '@angular/core';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import {Observable, Subject} from 'rxjs';
+import {MessageDto} from '../dtos/MessageDto';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from './Auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
   private socket$: WebSocketSubject<MessageDto> | null = null;
-  private urlChatMs = 'http://localhost:8085/api/messages';
   public newMessageNotificationSubject = new Subject<MessageDto>();
-
-  constructor(private http: HttpClient, private authService: AuthService) {}
 
   connect(userId: string): void {
     const url = `ws://localhost:8085/chat?userId=${userId}`;
@@ -23,6 +20,7 @@ export class ChatService {
 
     this.socket$.subscribe(
       (message: MessageDto) => {
+        console.log('Receiving message:',message)
         this.newMessageNotificationSubject.next(message);
       },
       (err) => console.error('WebSocket error:', err)
@@ -31,7 +29,7 @@ export class ChatService {
 
   sendMessage(message: MessageDto): void {
     if (this.socket$) {
-      console.log('Sending message:', message);
+       console.log('Sending message:', message);
       this.socket$.next(message);
     } else {
       console.error('WebSocket is not connected. Message not sent.');
@@ -51,13 +49,22 @@ export class ChatService {
     }
   }
 
-  receiveMessages(): Observable<MessageDto> {
+  markMessagesAsSeen(messages: MessageDto[]): void {
     if (this.socket$) {
-      return this.socket$.asObservable();
+      messages.forEach((message) => {
+        const seenNotification: MessageDto = {
+          ...message,
+          seen: true,
+          content: '',
+        };
+        console.log('Sending seen notification:', seenNotification);
+        this.socket$!.next(seenNotification);
+      });
     } else {
-      throw new Error('WebSocket is not connected.');
+      console.error('WebSocket is not connected. Seen notification not sent.');
     }
   }
+
 
   disconnect(): void {
     if (this.socket$) {
