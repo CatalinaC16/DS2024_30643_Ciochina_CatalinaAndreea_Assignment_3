@@ -23,31 +23,27 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        String userId = session.getUri().getQuery().split("=")[1]; // Extrage userId din query parametru
-        sessions.put(userId, session);  // Stocăm sesiunea utilizatorului
+        String userId = session.getUri().getQuery().split("=")[1];
+        sessions.put(userId, session);
         System.out.println("User/Administrator connected: " + userId);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // Deserializăm mesajul primit
         ChattingMessageDTO chatMessage = objectMapper.readValue(message.getPayload(), ChattingMessageDTO.class);
         System.out.println("Message received from: " + chatMessage.getSenderId() + " to: " + chatMessage.getReceiverId());
 
-        // Dacă este un mesaj de tip "typing", actualizăm starea în frontend
         if (chatMessage.isTyping()) {
             handleTypingNotification(chatMessage);
             return;
         }
 
-        // Salvăm mesajul în baza de date
+        // Salvează mesajul
         this.chattingMessageService.saveMessage(chatMessage);
 
-        // Căutăm sesiunea destinatarului
-        WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId().toString());
+        // Forwardează mesajul către receiver
+        WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId());
         if (receiverSession != null && receiverSession.isOpen()) {
-            System.out.println("Sending message to: " + chatMessage.getReceiverId());
-            // Trimiterea mesajului către destinatar
             receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
         } else {
             System.err.println("Receiver session not found or closed for message: " + chatMessage);
@@ -55,7 +51,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleTypingNotification(ChattingMessageDTO chatMessage) throws Exception {
-        // Transmite notificarea de "typing" către destinatar
         WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId().toString());
         if (receiverSession != null && receiverSession.isOpen()) {
             System.out.println("Sending typing notification to: " + chatMessage.getReceiverId());
@@ -66,17 +61,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleReadNotification(ChattingMessageDTO chatMessage) throws Exception {
-        // Căutăm sesiunea expeditorului și trimitem notificarea de "read"
         WebSocketSession senderSession = sessions.get(chatMessage.getSenderId().toString());
         if (senderSession != null && senderSession.isOpen()) {
-            chatMessage.setSeen(true); // Setează mesajul ca fiind citit
+            chatMessage.setSeen(true);
             senderSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
         }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        // Ștergem sesiunea utilizatorului la deconectare
         sessions.entrySet().removeIf(entry -> entry.getValue().equals(session));
     }
 }

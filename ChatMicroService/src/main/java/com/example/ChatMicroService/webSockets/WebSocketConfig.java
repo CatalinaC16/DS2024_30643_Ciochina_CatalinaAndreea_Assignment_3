@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new WebSocketHandler(chattingMessageService), "/chat")
-                .setAllowedOrigins("*"); // Permite accesul din orice origine
+                .setAllowedOrigins("*");
     }
 }

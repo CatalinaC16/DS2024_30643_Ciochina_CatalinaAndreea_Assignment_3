@@ -11,11 +11,10 @@ import { AuthService } from './Auth.service';
 export class ChatService {
   private socket$: WebSocketSubject<MessageDto> | null = null;
   private urlChatMs = 'http://localhost:8085/api/messages';
-  public newMessageNotificationSubject = new Subject<MessageDto>(); // pentru notificarea mesajului nou
+  public newMessageNotificationSubject = new Subject<MessageDto>();
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Conectează utilizatorul la WebSocket
   connect(userId: string): void {
     const url = `ws://localhost:8085/chat?userId=${userId}`;
     if (!this.socket$ || this.socket$.closed) {
@@ -24,13 +23,12 @@ export class ChatService {
 
     this.socket$.subscribe(
       (message: MessageDto) => {
-        this.newMessageNotificationSubject.next(message); // Emit notificare pentru mesaje noi
+        this.newMessageNotificationSubject.next(message);
       },
       (err) => console.error('WebSocket error:', err)
     );
   }
 
-  // Trimite un mesaj
   sendMessage(message: MessageDto): void {
     if (this.socket$) {
       console.log('Sending message:', message);
@@ -40,7 +38,6 @@ export class ChatService {
     }
   }
 
-  // Trimite o notificare de "typing"
   sendTypingNotification(senderId: string, receiverId: string): void {
     if (this.socket$) {
       const typingMessage: MessageDto = {
@@ -54,7 +51,6 @@ export class ChatService {
     }
   }
 
-  // Abonare la mesajele primite
   receiveMessages(): Observable<MessageDto> {
     if (this.socket$) {
       return this.socket$.asObservable();
@@ -63,7 +59,6 @@ export class ChatService {
     }
   }
 
-  // Deconectare WebSocket
   disconnect(): void {
     if (this.socket$) {
       this.socket$.complete();

@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ChatService } from "../../services/Chat.service";
-import { MessageDto } from "../../dtos/MessageDto";
-import { AuthService } from "../../services/Auth.service";
-import { UserService } from "../../services/User.service";
-import { UserDto } from "../../dtos/UserDto";
+import {Component, OnInit} from '@angular/core';
+import {ChatService} from "../../services/Chat.service";
+import {MessageDto} from "../../dtos/MessageDto";
+import {AuthService} from "../../services/Auth.service";
+import {UserService} from "../../services/User.service";
+import {UserDto} from "../../dtos/UserDto";
 
 @Component({
   selector: 'app-chat',
@@ -11,17 +11,19 @@ import { UserDto } from "../../dtos/UserDto";
   styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit {
-  chats: { user: string; messages: MessageDto[]; typing: boolean }[] = [];
+  chats: { user: string; messages: MessageDto[]; typing: boolean; newMessage: string }[] = [];
   newMessage: string = '';
   currentUser: string = '';
-  adminId: string = 'bc5f4afc-8990-423a-8e23-a5cabb9ef24a'; // ID-ul administratorului
+  adminId: string = 'bc5f4afc-8990-423a-8e23-a5cabb9ef24a';
+  adminName: string = "Admin";
   currentUserRole: string = '';
   isAdmin: boolean = false;
-  newMessageNotifications: MessageDto[] = [];  // Notificările de mesaje noi
+  newMessageNotifications: MessageDto[] = [];
 
   constructor(private chatService: ChatService,
               private authService: AuthService,
-              private userService: UserService) {}
+              private userService: UserService) {
+  }
 
   ngOnInit(): void {
     this.loadUser();
@@ -36,20 +38,24 @@ export class ChatComponent implements OnInit {
       this.userService.getUserByEmail(userEmail).subscribe(
         (response: UserDto) => {
           this.currentUser = response.id;
-          this.isAdmin = response.role === 'ADMIN';  // Verificăm dacă utilizatorul este admin
-          this.chatService.connect(this.currentUser);  // Conectăm WebSocket-ul
+          this.isAdmin = response.role === 'ADMIN';
+          this.chatService.connect(this.currentUser);
           this.loadAdminChats();
 
-          // Abonăm la notificările de mesaje noi
           this.chatService.newMessageNotificationSubject.subscribe((message) => {
             if (message.typing) {
               this.updateTypingStatus(message.senderId, true);
-            } else if (message.seen) {
-              this.updateMessageStatus(message);
             } else {
-              this.newMessageNotifications.push(message);  // Adăugăm mesajul în notificări
+              let chat = this.chats.find(c => c.user === message.senderId || c.user === message.receiverId);
+              if (!chat) {
+                chat = {user: message.senderId, messages: [], typing: false, newMessage: ''};
+                this.chats.push(chat);
+              }
+              chat.messages.push(message);
+              chat.typing = false;
             }
           });
+
         },
         (error) => {
           console.error(error);
@@ -60,27 +66,32 @@ export class ChatComponent implements OnInit {
 
   loadAdminChats() {
     if (this.isAdmin) {
-      // Încărcăm conversațiile adminului (funcționalitate opțională)
+
     }
   }
 
   sendMessage(receiver: string): void {
     let chat = this.chats.find((c) => c.user === receiver);
     if (!chat) {
-      chat = { user: receiver, messages: [], typing: false };
+      chat = { user: receiver, messages: [], typing: false, newMessage: '' };
       this.chats.push(chat);
+    }
+
+    if (!chat.newMessage.trim()) {
+      console.warn('Cannot send an empty message');
+      return;
     }
 
     const message: MessageDto = {
       senderId: this.currentUser,
       receiverId: receiver,
-      content: this.newMessage,
+      content: chat.newMessage,
       seen: false,
     };
 
     this.chatService.sendMessage(message);
     chat.messages.push(message);
-    this.newMessage = '';
+    chat.newMessage = '';
   }
 
   sendTypingNotification(receiver: string): void {
@@ -99,7 +110,7 @@ export class ChatComponent implements OnInit {
     if (chat) {
       let msg = chat.messages.find(m => m.senderId === message.senderId && m.content === message.content);
       if (msg) {
-        msg.seen = true; // Actualizează statusul mesajului la "văzut"
+        msg.seen = true;
       }
     }
   }
@@ -107,17 +118,19 @@ export class ChatComponent implements OnInit {
   openConversation(notification: MessageDto): void {
     let chat = this.chats.find((c) => c.user === notification.senderId);
     if (!chat) {
-      chat = { user: notification.senderId, messages: [], typing: false };
+      chat = {user: notification.senderId, messages: [], typing: false, newMessage: ''};
       this.chats.push(chat);
     }
     chat.messages.push(notification);
+
     this.newMessageNotifications = this.newMessageNotifications.filter(n => n !== notification);
   }
+
 
   startNewChat(): void {
     const user = this.adminId;
     if (user) {
-      this.chats.push({ user, messages: [], typing: false });
+      this.chats.push({user, messages: [], typing: false, newMessage: ''});
     }
   }
 }
