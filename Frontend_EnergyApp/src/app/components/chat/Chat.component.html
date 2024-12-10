@@ -28,7 +28,10 @@
 
   <textarea [(ngModel)]="chat.newMessage"
             (input)="sendTypingNotification(chat.user)"
-            placeholder="Write a message..."></textarea>
+            (blur)="sendStopTypingNotification(chat.user)"
+            placeholder="Write a message...">
+</textarea>
+
   <button (click)="sendMessage(chat.user)">Send</button>
 </div>
 

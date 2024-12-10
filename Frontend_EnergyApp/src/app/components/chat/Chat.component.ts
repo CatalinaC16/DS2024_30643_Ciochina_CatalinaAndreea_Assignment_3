@@ -14,10 +14,9 @@ export class ChatComponent implements OnInit {
   chats: { user: string; messages: MessageDto[]; typing: boolean; newMessage: string }[] = [];
   currentUser: string = '';
   adminId: string = 'bc5f4afc-8990-423a-8e23-a5cabb9ef24a';
-  adminName: string = "Admin";
-  currentUserRole: string = '';
   isAdmin: boolean = false;
   newMessageNotifications: MessageDto[] = [];
+  private typingTimers: { [key: string]: any } = {};
 
   constructor(private chatService: ChatService,
               private authService: AuthService,
@@ -42,8 +41,8 @@ export class ChatComponent implements OnInit {
           this.loadAdminChats();
 
           this.chatService.newMessageNotificationSubject.subscribe((message) => {
-            if (message.typing) {
-              this.updateTypingStatus(message.senderId, true);
+            if (message.typing || message.content === '') {
+              this.updateTypingStatus(message.senderId, message.typing!);
             } else if (message.seen) {
               console.log("Seen notification for message:", message.id);
               this.updateMessageStatus(message);
@@ -106,11 +105,27 @@ export class ChatComponent implements OnInit {
   }
 
   sendTypingNotification(receiver: string): void {
-    this.chatService.sendTypingNotification(this.currentUser, receiver);
+    if (this.chatService) {
+      this.chatService.sendTypingNotification(this.currentUser, receiver, true);
+      if (this.typingTimers[receiver]) {
+        clearTimeout(this.typingTimers[receiver]);
+      }
+
+      this.typingTimers[receiver] = setTimeout(() => {
+        this.sendStopTypingNotification(receiver);
+      }, 3000);
+    }
   }
 
-  updateTypingStatus(senderId: string, typing: boolean) {
-    let chat = this.chats.find(c => c.user === senderId);
+  sendStopTypingNotification(receiver: string): void {
+    if (this.chatService) {
+      this.chatService.sendTypingNotification(this.currentUser, receiver, false);
+    }
+  }
+
+  updateTypingStatus(senderId: string, typing: boolean): void {
+    console.log('Updating typing status for:', senderId, 'to:', typing); // Debug
+    const chat = this.chats.find(c => c.user === senderId);
     if (chat) {
       chat.typing = typing;
     }
@@ -118,11 +133,7 @@ export class ChatComponent implements OnInit {
 
   updateMessageStatus(message: MessageDto) {
     const chat = this.chats.find(c => c.user === message.receiverId);
-    console.log(this.chats);
-
     if (chat) {
-      console.log(chat);
-
       chat.messages.forEach((msg) => {
         if (!msg.seen) {
           msg.seen = true;

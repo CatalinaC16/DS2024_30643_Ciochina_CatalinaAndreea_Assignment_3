@@ -51,7 +51,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         ChattingMessageDTO chatMessage = this.objectMapper.readValue(message.getPayload(), ChattingMessageDTO.class);
         System.out.println("Message received : " + chatMessage.toString());
 
-        if (chatMessage.isTyping()) {
+        if (chatMessage.isTyping() || chatMessage.getContent().equals("")) {
             this.handleTypingNotification(chatMessage);
             return;
         }

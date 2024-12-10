@@ -20,7 +20,7 @@ export class ChatService {
 
     this.socket$.subscribe(
       (message: MessageDto) => {
-        console.log('Receiving message:',message)
+        console.log('Receiving message:', message)
         this.newMessageNotificationSubject.next(message);
       },
       (err) => console.error('WebSocket error:', err)
@@ -29,21 +29,21 @@ export class ChatService {
 
   sendMessage(message: MessageDto): void {
     if (this.socket$) {
-       console.log('Sending message:', message);
+      console.log('Sending message:', message);
       this.socket$.next(message);
     } else {
       console.error('WebSocket is not connected. Message not sent.');
     }
   }
 
-  sendTypingNotification(senderId: string, receiverId: string): void {
+  sendTypingNotification(senderId: string, receiverId: string, typing:boolean): void {
     if (this.socket$) {
       const typingMessage: MessageDto = {
         senderId: senderId,
         receiverId: receiverId,
         content: '',
         seen: false,
-        typing: true
+        typing: typing
       };
       this.socket$.next(typingMessage);
     }
