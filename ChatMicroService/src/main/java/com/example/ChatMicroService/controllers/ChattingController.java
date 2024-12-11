@@ -16,13 +16,6 @@ public class ChattingController {
 
     private final ChattingMessageService messageService;
 
-    @PostMapping("/send")
-    public ResponseEntity<Void> sendMessage(@RequestBody ChattingMessageDTO messageDto) {
-        System.out.println(messageDto);
-        this.messageService.saveMessage(messageDto);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/getConversation/{userId1}/{userId2}")
     public List<ChattingMessageDTO> getConversation(@PathVariable UUID userId1, @PathVariable UUID userId2) {
         return this.messageService.getConversation(userId1, userId2);

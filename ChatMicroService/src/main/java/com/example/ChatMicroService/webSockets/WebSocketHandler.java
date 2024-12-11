@@ -50,14 +50,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ChattingMessageDTO chatMessage = this.objectMapper.readValue(message.getPayload(), ChattingMessageDTO.class);
         System.out.println("Message received : " + chatMessage.toString());
-
-        if (chatMessage.isTyping() || chatMessage.getContent().equals("")) {
-            this.handleTypingNotification(chatMessage);
+        
+        if (chatMessage.isSeen()) {
+            this.markAsSeen(chatMessage.getId());
             return;
         }
 
-        if (chatMessage.isSeen()) {
-            this.markAsSeen(chatMessage.getId());
+        if (chatMessage.isTyping() || chatMessage.getContent().equals("")) {
+            this.handleTypingNotification(chatMessage);
             return;
         }
 

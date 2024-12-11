@@ -52,7 +52,7 @@ export class ChatComponent implements OnInit {
                 const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
                 if (!alreadyNotified) {
                   this.newMessageNotifications.push(message);
-                  console.log('New message added to notifications:', message);
+                  //console.log('New message added to notifications:', message);
                 }
               } else {
 
@@ -124,7 +124,7 @@ export class ChatComponent implements OnInit {
   }
 
   updateTypingStatus(senderId: string, typing: boolean): void {
-    console.log('Updating typing status for:', senderId, 'to:', typing); // Debug
+    //console.log('Updating typing status for:', senderId, 'to:', typing); // Debug
     const chat = this.chats.find(c => c.user === senderId);
     if (chat) {
       chat.typing = typing;
@@ -137,14 +137,14 @@ export class ChatComponent implements OnInit {
       chat.messages.forEach((msg) => {
         if (!msg.seen) {
           msg.seen = true;
-          console.log(`Message ${msg.id} marked as seen`);
+         // console.log(`Message ${msg.id} marked as seen`);
         }
       });
     }
   }
 
   openConversation(notification: MessageDto): void {
-    console.log('openConversation called with notification:', notification);
+    //console.log('openConversation called with notification:', notification);
 
     let chat = this.chats.find((c) => c.user === notification.senderId);
     if (!chat) {
@@ -155,10 +155,10 @@ export class ChatComponent implements OnInit {
     chat.messages.push(notification);
 
     const unseenMessages = chat.messages.filter((m) => !m.seen && m.senderId !== this.currentUser);
-    console.log('Unseen messages in chat:', unseenMessages);
+    //console.log('Unseen messages in chat:', unseenMessages);
 
     if (unseenMessages.length > 0) {
-      console.log('Marking unseen messages as seen');
+     // console.log('Marking unseen messages as seen');
       this.chatService.markMessagesAsSeen(unseenMessages);
       unseenMessages.forEach((m) => (m.seen = true));
     }
