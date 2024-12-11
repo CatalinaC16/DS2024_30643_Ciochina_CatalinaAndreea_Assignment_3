@@ -1,4 +1,4 @@
-<div *ngIf="isAdmin && newMessageNotifications.length > 0" class="notifications">
+<div *ngIf="newMessageNotifications.length > 0" class="notifications">
   <h4>You have new messages:</h4>
   <div *ngFor="let notification of newMessageNotifications" class="notification"
        (click)="openConversation(notification)">

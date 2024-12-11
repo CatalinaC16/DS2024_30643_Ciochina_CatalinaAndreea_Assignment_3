@@ -47,23 +47,12 @@ export class ChatComponent implements OnInit {
               console.log("Seen notification for message:", message.id);
               this.updateMessageStatus(message);
             } else {
-              if (this.isAdmin) {
-
-                const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
-                if (!alreadyNotified) {
-                  this.newMessageNotifications.push(message);
-                  //console.log('New message added to notifications:', message);
-                }
-              } else {
-
-                let chat = this.chats.find((c) => c.user === message.senderId || c.user === message.receiverId);
-                if (!chat) {
-                  chat = {user: message.senderId, messages: [], typing: false, newMessage: ''};
-                  this.chats.push(chat);
-                }
-                chat.messages.push(message);
-                chat.typing = false;
+              const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
+              if (!alreadyNotified) {
+                this.newMessageNotifications.push(message);
+                //console.log('New message added to notifications:', message);
               }
+
             }
           });
         },
