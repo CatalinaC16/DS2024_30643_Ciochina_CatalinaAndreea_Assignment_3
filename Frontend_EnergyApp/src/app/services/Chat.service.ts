@@ -2,8 +2,6 @@ import {Injectable} from '@angular/core';
 import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 import {Observable, Subject} from 'rxjs';
 import {MessageDto} from '../dtos/MessageDto';
-import {HttpClient} from '@angular/common/http';
-import {AuthService} from './Auth.service';
 
 @Injectable({
   providedIn: 'root',

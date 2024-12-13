@@ -21,7 +21,12 @@ export class UserService {
 
   getAllUsers(): Observable<UserDto[]> {
     const headers = this.getHeaders();
-    return this.http.get<UserDto[]>(`${this.urlAPI}/getAll}`, {headers});
+    return this.http.get<UserDto[]>(`${this.urlAPI}/getAllUsers`, {headers});
+  }
+
+  getAllAdmins(): Observable<UserDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<UserDto[]>(`${this.urlAPI}/getAllAdmins`, {headers});
   }
 
   updateUser(userId: string, userDTO: UserDto): Observable<any> {

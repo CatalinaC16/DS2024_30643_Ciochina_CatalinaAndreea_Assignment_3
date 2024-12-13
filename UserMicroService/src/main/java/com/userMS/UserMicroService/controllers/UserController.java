@@ -18,8 +18,17 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return ResponseEntity.ok(this.userService.getUsers());
+    }
 
+    @GetMapping("/getAllAdmins")
+    public ResponseEntity<List<UserDTO>> getAllAdmins() {
+        return ResponseEntity.ok(this.userService.getAllAdmins());
+    }
+
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(this.userService.getAllUsers());
     }
 

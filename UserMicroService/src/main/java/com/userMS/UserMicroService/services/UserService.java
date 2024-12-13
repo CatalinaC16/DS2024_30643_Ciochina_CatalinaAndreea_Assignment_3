@@ -3,12 +3,11 @@ package com.userMS.UserMicroService.services;
 import com.userMS.UserMicroService.dtos.mappers.UserMapper;
 import com.userMS.UserMicroService.dtos.userDTOs.UserDTO;
 import com.userMS.UserMicroService.dtos.userDTOs.UserUpdateDTO;
+import com.userMS.UserMicroService.entities.Role;
 import com.userMS.UserMicroService.entities.User;
 import com.userMS.UserMicroService.exceptions.UserDoesNotExistException;
 import com.userMS.UserMicroService.jwt.JwtService;
 import com.userMS.UserMicroService.repositories.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -16,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +38,31 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public List<UserDTO> getAllUsers() {
+    public List<UserDTO> getUsers() {
         List<User> users = this.userRepository.findAll();
         List<UserDTO> userDTOS = new ArrayList<>();
         if (!users.isEmpty()) userDTOS = users.stream().map(userMapper::convertToDTO).collect(Collectors.toList());
         logger.info("The list of all users was requested");
+        return userDTOS;
+    }
+
+    public List<UserDTO> getAllUsers() {
+        List<User> users = this.userRepository.findAll();
+        List<UserDTO> userDTOS = new ArrayList<>();
+
+        users = users.stream().filter(user -> user.getRole().equals(Role.USER)).collect(Collectors.toList());
+        if (!users.isEmpty()) userDTOS = users.stream().map(userMapper::convertToDTO).collect(Collectors.toList());
+        logger.info("The list of just users was requested");
+        return userDTOS;
+    }
+
+    public List<UserDTO> getAllAdmins() {
+        List<User> users = this.userRepository.findAll();
+        List<UserDTO> userDTOS = new ArrayList<>();
+
+        users = users.stream().filter(user -> user.getRole().equals(Role.ADMIN)).collect(Collectors.toList());
+        if (!users.isEmpty()) userDTOS = users.stream().map(userMapper::convertToDTO).collect(Collectors.toList());
+        logger.info("The list of all admins was requested");
         return userDTOS;
     }
 

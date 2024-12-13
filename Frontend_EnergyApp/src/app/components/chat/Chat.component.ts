@@ -4,6 +4,7 @@ import {MessageDto} from "../../dtos/MessageDto";
 import {AuthService} from "../../services/Auth.service";
 import {UserService} from "../../services/User.service";
 import {UserDto} from "../../dtos/UserDto";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-chat',
@@ -13,13 +14,15 @@ import {UserDto} from "../../dtos/UserDto";
 export class ChatComponent implements OnInit {
   chats: { user: string; messages: MessageDto[]; typing: boolean; newMessage: string }[] = [];
   currentUser: string = '';
-  adminId: string = 'bc5f4afc-8990-423a-8e23-a5cabb9ef24a';
+  userToChatWith: string = '';
   isAdmin: boolean = false;
   newMessageNotifications: MessageDto[] = [];
   private typingTimers: { [key: string]: any } = {};
+  usersToChatWith: UserDto[] = [];
 
   constructor(private chatService: ChatService,
               private authService: AuthService,
+              private router: Router,
               private userService: UserService) {
   }
 
@@ -52,15 +55,42 @@ export class ChatComponent implements OnInit {
                 this.newMessageNotifications.push(message);
                 this.openConversation(message);
               }
-
             }
           });
+
+          if (this.isAdmin) {
+            this.loadUsers();
+          } else {
+            this.loadAdmins();
+          }
         },
         (error) => {
           console.error(error);
         }
       );
     }
+  }
+
+  loadAdmins(): void {
+    this.userService.getAllAdmins().subscribe(
+      (admins) => {
+        this.usersToChatWith = admins.filter((user) => user.id != this.currentUser)
+      },
+      (error) => {
+        console.error('Error loading admins:', error);
+      }
+    );
+  }
+
+  loadUsers(): void {
+    this.userService.getAllUsers().subscribe(
+      (admins) => {
+        this.usersToChatWith = admins.filter((user) => user.id != this.currentUser)
+      },
+      (error) => {
+        console.error('Error loading users:', error);
+      }
+    );
   }
 
   loadAdminChats() {
@@ -151,9 +181,30 @@ export class ChatComponent implements OnInit {
 
 
   startNewChat(): void {
-    const user = this.adminId;
+    const user = this.userToChatWith;
     if (user) {
       this.chats.push({user, messages: [], typing: false, newMessage: ''});
     }
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(["/login"]).then();
+  }
+
+  viewUserDetails() {
+    this.router.navigate(["/myProfile"]).then();
+  }
+
+  goToDevices() {
+    this.router.navigate(["/myDevices"]).then();
+  }
+
+  goToAllDevices() {
+    this.router.navigate(["/admin/all-devices"]).then();
+  }
+
+  goToAllUsers() {
+    this.router.navigate(["/admin/all-users"]).then();
   }
 }
