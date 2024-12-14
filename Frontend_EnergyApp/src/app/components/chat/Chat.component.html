@@ -15,14 +15,6 @@
   </div>
 </nav>
 
-<!--<div *ngIf="newMessageNotifications.length > 0" class="notifications">-->
-<!--  <h4>You have new messages:</h4>-->
-<!--  <div *ngFor="let notification of newMessageNotifications" class="notification"-->
-<!--       (click)="openConversation(notification)">-->
-<!--    New message from: {{ notification.senderId }}-->
-<!--  </div>-->
-<!--</div>-->
-
 <div class="start-chat-container">
   <h4>Select someone to chat with:</h4>
   <select [(ngModel)]="userToChatWith" class="start-select">
@@ -31,35 +23,40 @@
     </option>
   </select>
   <button (click)="startNewChat()" class="start-chat-button">Start Chat</button>
+  <button *ngIf="isAdmin" (click)="openGroupChat()" class="start-chat-button">Group Chat</button>
 </div>
 
-<!--<div *ngIf="chats.length === 0 && !isAdmin" class="no-chats">-->
-<!--  <p>No active chats. Start a new conversation!</p>-->
-<!--  <button (click)="startNewChat()" class="start-chat-button">Start Chat</button>-->
-<!--</div>-->
 
 <div *ngFor="let chat of chats" class="chat-container">
-  <h3 class="chat-title">{{ chat.user }}</h3>
+  <div class="group-chat">
+    <h3 *ngIf="chat.user === 'GROUP'" class="chat-title">Group Chat</h3>
+    <h3 *ngIf="chat.user !== 'GROUP'" class="chat-title">{{ chat.user }}</h3>
 
-  <div *ngFor="let message of chat.messages">
-    <div class="message" [class.seen]="message.seen">
-      {{ message.content }}
-      <span *ngIf="message.seen&&currentUser!=message.receiverId" class="seen-indicator">✔✔</span>
+    <div *ngFor="let message of chat.messages">
+      <div class="message" [class.seen]="message.seen">
+        <b *ngIf="chat.user === 'GROUP'">{{message.senderId}}:</b>
+        {{ message.content }}
+        <span *ngIf="message.seen && currentUser !== message.receiverId" class="seen-indicator">✔✔</span>
+      </div>
     </div>
   </div>
-
 
   <div *ngIf="chat.typing" class="typing-notification">
     {{ chat.user === currentUser ? 'You are typing...' : 'Is typing...' }}
   </div>
 
-  <textarea [(ngModel)]="chat.newMessage"
+  <textarea *ngIf="chat.user === 'GROUP' && isAdmin" [(ngModel)]="groupMessage"
             (input)="sendTypingNotification(chat.user)"
             (blur)="sendStopTypingNotification(chat.user)"
-            placeholder="Write a message...">
-</textarea>
+            placeholder="Send a message to all users"></textarea>
 
-  <button (click)="sendMessage(chat.user)">Send</button>
+  <textarea *ngIf="chat.user !== 'GROUP'" [(ngModel)]="chat.newMessage"
+            (input)="sendTypingNotification(chat.user)"
+            (blur)="sendStopTypingNotification(chat.user)"
+            placeholder="Write a message..."></textarea>
+
+  <button *ngIf="chat.user === 'GROUP' && isAdmin" (click)="sendGroupMessage()">Send</button>
+  <button *ngIf="chat.user !== 'GROUP'" (click)="sendMessage(chat.user)">Send</button>
 </div>
 
 

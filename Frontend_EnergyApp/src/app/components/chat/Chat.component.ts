@@ -19,6 +19,7 @@ export class ChatComponent implements OnInit {
   newMessageNotifications: MessageDto[] = [];
   private typingTimers: { [key: string]: any } = {};
   usersToChatWith: UserDto[] = [];
+  groupMessage: string = '';
 
   constructor(private chatService: ChatService,
               private authService: AuthService,
@@ -50,10 +51,19 @@ export class ChatComponent implements OnInit {
               console.log("Seen notification for message:", message.id);
               this.updateMessageStatus(message);
             } else {
-              const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
-              if (!alreadyNotified) {
-                this.newMessageNotifications.push(message);
-                this.openConversation(message);
+              if (message.receiverId === 'GROUP') {
+                let groupChat = this.chats.find((c) => c.user === 'GROUP');
+                if (!groupChat) {
+                  groupChat = { user: 'GROUP', messages: [], typing: false, newMessage: '' };
+                  this.chats.push(groupChat);
+                }
+                groupChat.messages.push(message);
+              }else {
+                const alreadyNotified = this.newMessageNotifications.find((n) => n.id === message.id);
+                if (!alreadyNotified) {
+                  this.newMessageNotifications.push(message);
+                  this.openConversation(message);
+                }
               }
             }
           });
@@ -121,6 +131,29 @@ export class ChatComponent implements OnInit {
     this.chatService.sendMessage(message);
     chat.messages.push(message);
     chat.newMessage = '';
+  }
+
+  sendGroupMessage(): void {
+    if (!this.groupMessage.trim()) {
+      console.warn('Cannot send an empty group message');
+      return;
+    }
+
+    const groupMessage: MessageDto = {
+      senderId: this.currentUser,
+      receiverId: 'GROUP',
+      content: this.groupMessage,
+      seen: false,
+    };
+
+    this.chatService.sendMessage(groupMessage);
+    let groupChat = this.chats.find((chat) => chat.user === 'GROUP');
+    if (!groupChat) {
+      groupChat = { user: 'GROUP', messages: [], typing: false, newMessage: '' };
+      this.chats.push(groupChat);
+    }
+    groupChat.messages.push(groupMessage);
+    this.groupMessage = '';
   }
 
   sendTypingNotification(receiver: string): void {
@@ -196,6 +229,29 @@ export class ChatComponent implements OnInit {
     this.chats.push({ user, messages: [], typing: false, newMessage: '' });
     console.log('New chat started with user:', user);
   }
+
+  openGroupChat(): void {
+    let groupChat = this.chats.find(chat => chat.user === 'GROUP');
+    if (!groupChat) {
+      groupChat = {
+        user: 'GROUP',
+        messages: [],
+        typing: false,
+        newMessage: ''
+      };
+      this.chats.push(groupChat);
+    }
+
+    this.userToChatWith = 'GROUP';
+
+    setTimeout(() => {
+      const groupChatElement = document.querySelector('.chat-container .group-chat');
+      if (groupChatElement) {
+        groupChatElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  }
+
 
   logout(): void {
     this.authService.logout();

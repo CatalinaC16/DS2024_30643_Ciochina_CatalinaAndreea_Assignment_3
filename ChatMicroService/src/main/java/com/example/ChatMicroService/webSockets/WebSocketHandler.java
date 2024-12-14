@@ -50,7 +50,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ChattingMessageDTO chatMessage = this.objectMapper.readValue(message.getPayload(), ChattingMessageDTO.class);
         System.out.println("Message received : " + chatMessage.toString());
-        
+
         if (chatMessage.isSeen()) {
             this.markAsSeen(chatMessage.getId());
             return;
@@ -58,6 +58,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         if (chatMessage.isTyping() || chatMessage.getContent().equals("")) {
             this.handleTypingNotification(chatMessage);
+            return;
+        }
+
+        if ("GROUP".equals(chatMessage.getReceiverId())) {
+            for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
+                if (!entry.getKey().equals(chatMessage.getSenderId().toString()) && entry.getValue().isOpen()) {
+                    entry.getValue().sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+                }
+            }
             return;
         }
 
