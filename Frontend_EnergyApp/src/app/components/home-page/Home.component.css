@@ -89,3 +89,39 @@
     transform: translateY(0);
   }
 }
+
+.chat {
+  position: fixed;
+  top:80px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chat .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #344259;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.chat .btn:hover {
+  background-color: #344259;
+  transform: scale(1.05);
+}
+
+.chat .btn i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.chat .btn:active {
+  transform: scale(0.95);
+}

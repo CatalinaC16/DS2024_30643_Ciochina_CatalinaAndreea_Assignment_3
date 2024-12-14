@@ -179,17 +179,31 @@ export class ChatComponent implements OnInit {
     this.newMessageNotifications = this.newMessageNotifications.filter((n) => n.id !== notification.id);
   }
 
-
   startNewChat(): void {
     const user = this.userToChatWith;
-    if (user) {
-      this.chats.push({user, messages: [], typing: false, newMessage: ''});
+    if (!user) {
+      console.warn('No user selected to start a chat.');
+      return;
     }
+
+    const existingChat = this.chats.find(chat => chat.user === user);
+
+    if (existingChat) {
+      console.log('Chat already exists with user:', user);
+      return;
+    }
+
+    this.chats.push({ user, messages: [], typing: false, newMessage: '' });
+    console.log('New chat started with user:', user);
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(["/login"]).then();
+  }
+
+  goToHomePage() {
+    this.router.navigate(["/home"]).then();
   }
 
   viewUserDetails() {

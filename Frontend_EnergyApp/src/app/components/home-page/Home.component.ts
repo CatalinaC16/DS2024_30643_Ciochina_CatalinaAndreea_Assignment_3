@@ -62,4 +62,8 @@ export class HomeComponent implements OnInit {
   goToAllUsers() {
     this.router.navigate(["/admin/all-users"]).then();
   }
+
+  talkWithSomeone() {
+    this.router.navigate(['/chat']);
+  }
 }

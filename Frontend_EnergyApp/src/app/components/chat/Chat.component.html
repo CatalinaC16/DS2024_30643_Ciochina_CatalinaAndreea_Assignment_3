@@ -5,7 +5,8 @@
     </div>
 
     <div class="navbar-buttons">
-      <button *ngIf="this.isAdmin" class="btn" (click)="goToDevices()">My devices</button>
+      <button class="btn" (click)="goToHomePage()">Home</button>
+      <button *ngIf="!this.isAdmin" class="btn" (click)="goToDevices()">My devices</button>
       <button *ngIf="this.isAdmin" class="btn" (click)="goToAllDevices()">All devices</button>
       <button *ngIf="this.isAdmin" class="btn" (click)="goToAllUsers()">All users</button>
       <button class="btn" (click)="viewUserDetails()">Profile</button>

@@ -9,6 +9,7 @@
       <button *ngIf="this.role=='ADMIN'" class="btn" (click)="goToAllDevices()">All devices</button>
       <button *ngIf="this.role=='ADMIN'" class="btn" (click)="goToAllUsers()">All users</button>
       <button class="btn" (click)="viewUserDetails()">Profile</button>
+
       <button class="btn" (click)="logout()">Logout</button>
     </div>
   </div>
@@ -16,5 +17,18 @@
 
 <div class="intro-container">
   <h2 class="intro-text">Welcome to my project on the Distributed Systems course, enjoy!</h2>
+</div>
+
+<div class="chat">
+  <button *ngIf="this.role=='ADMIN'" class="btn" (click)="talkWithSomeone()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="white" style="margin-right: 10px;">
+      <path d="M12 2C6.48 2 2 5.8 2 10.5c0 2.36 1.36 4.48 3.5 5.86v4.14l4.07-2.03c.8.18 1.63.28 2.43.28 5.52 0 10-3.8 10-8.5S17.52 2 12 2zm0 14c-.66 0-1.31-.08-1.95-.24l-.36-.09-2.33 1.16.1-2.3-.25-.15C5.68 13.65 4 11.4 4 10.5 4 6.91 7.8 4 12 4s8 2.91 8 6.5-3.8 6.5-8 6.5z"></path>
+    </svg> Talk with a user
+  </button>
+  <button *ngIf="this.role=='USER'" class="btn" (click)="talkWithSomeone()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="white" style="margin-right: 10px;">
+      <path d="M12 2C6.48 2 2 5.8 2 10.5c0 2.36 1.36 4.48 3.5 5.86v4.14l4.07-2.03c.8.18 1.63.28 2.43.28 5.52 0 10-3.8 10-8.5S17.52 2 12 2zm0 14c-.66 0-1.31-.08-1.95-.24l-.36-.09-2.33 1.16.1-2.3-.25-.15C5.68 13.65 4 11.4 4 10.5 4 6.91 7.8 4 12 4s8 2.91 8 6.5-3.8 6.5-8 6.5z"></path>
+    </svg> Talk with Admin
+  </button>
 </div>
 
