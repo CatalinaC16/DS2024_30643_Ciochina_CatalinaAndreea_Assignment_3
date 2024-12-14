@@ -82,29 +82,33 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleTypingNotification(ChattingMessageDTO chatMessage) throws Exception {
-        WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId().toString());
-        if (receiverSession != null && receiverSession.isOpen()) {
-            System.out.println("Sending typing notification to: " + chatMessage.getReceiverId());
-            receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
-        } else {
-            System.err.println("Receiver session not found or closed for typing notification: " + chatMessage);
+        if (!"GROUP".equals(chatMessage.getReceiverId())) {
+            WebSocketSession receiverSession = sessions.get(chatMessage.getReceiverId().toString());
+            if (receiverSession != null && receiverSession.isOpen()) {
+                System.out.println("Sending typing notification to: " + chatMessage.getReceiverId());
+                receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+            } else {
+                System.err.println("Receiver session not found or closed for typing notification: " + chatMessage);
+            }
         }
     }
 
     public void markAsSeen(UUID messageId) {
-        Message message = this.chattingMessageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
-        message.setSeen(true);
-        this.chattingMessageRepository.save(message);
+        if (messageId != null) {
+            Message message = this.chattingMessageRepository.findById(messageId)
+                    .orElseThrow(() -> new IllegalArgumentException("Message not found: " + messageId));
+            message.setSeen(true);
+            this.chattingMessageRepository.save(message);
 
-        WebSocketSession senderSession = this.sessions.get(message.getSenderId().toString());
-        if (senderSession != null && senderSession.isOpen()) {
-            ChattingMessageDTO readNotification = this.chattingMessageMapper.toDTO(message);
-            readNotification.setSeen(true);
-            try {
-                senderSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(readNotification)));
-            } catch (Exception e) {
-                e.printStackTrace();
+            WebSocketSession senderSession = this.sessions.get(message.getSenderId().toString());
+            if (senderSession != null && senderSession.isOpen()) {
+                ChattingMessageDTO readNotification = this.chattingMessageMapper.toDTO(message);
+                readNotification.setSeen(true);
+                try {
+                    senderSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(readNotification)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
