@@ -23,7 +23,11 @@ public class SecurityConfig {
                 .requestMatchers("/chat/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure();
+
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
