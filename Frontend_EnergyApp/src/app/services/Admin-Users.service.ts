@@ -8,7 +8,7 @@ import {UserDto} from "../dtos/UserDto";
   providedIn: 'root'
 })
 export class AdminUsersService {
-  private apiUrl = 'http://localhost:8084/api/user';
+  private apiUrl = 'http://user.localhost/api/user';
 
   constructor(private http: HttpClient,
               private authService: AuthService) {

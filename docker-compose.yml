@@ -1,0 +1,194 @@
+version: '3.8'
+
+networks:
+  custom_network:
+    driver: bridge
+
+services:
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    ports:
+      - "80:80"      # HTTP pentru acces la servicii
+      - "8080:8080"  # Dashboard Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik_logs:/var/log/traefik
+    networks:
+      - custom_network
+    command:
+      - --api.insecure=true                      # Dashboard fără autentificare
+      - --providers.docker                       # Monitorizare containere Docker
+      - --accesslog=true                         # Log-uri acces
+      - --accesslog.filepath=/var/log/traefik/access.log
+      - --log.level=DEBUG                        # Nivel log pentru depanare
+      - --entrypoints.web.address=:80            # Ascultă pe portul 80
+    labels:
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+
+  postgres-user:
+    image: postgres:16-alpine3.18
+    container_name: postgres-user
+    networks:
+      - custom_network
+    environment:
+      POSTGRES_DB: user_ms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cata1609
+    deploy:
+      replicas: 1
+
+  user-management-app:
+    build: ./UserMicroService
+    image: users:latest
+    networks:
+      - custom_network
+    environment:
+      DB_IP: postgres-user
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: cata1609
+      DB_DBNAME: user_ms
+      DEVICE_CONTAINER_NAME: devices
+      DEVICE_CONTAINER_PORT: 8081
+    depends_on:
+      - postgres-user
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user.rule=Host(`user.localhost`)"
+      - "traefik.http.services.user.loadbalancer.server.port=8084"
+      - "traefik.http.routers.user.middlewares=cors"
+    deploy:
+      replicas: 1
+
+  postgres-device:
+    image: postgres:16-alpine3.18
+    container_name: postgres-device
+    networks:
+      - custom_network
+    environment:
+      POSTGRES_DB: device_ms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cata1609
+    deploy:
+      replicas: 1
+
+  device-management-app:
+    build: ./DeviceMicroService
+    image: devices:latest
+    networks:
+      - custom_network
+    environment:
+      DB_IP: postgres-device
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: cata1609
+      DB_DBNAME: device_ms
+    depends_on:
+      - postgres-device
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.device.rule=Host(`device.localhost`)"
+      - "traefik.http.services.device.loadbalancer.server.port=8081"
+      - "traefik.http.routers.device.middlewares=cors"
+    deploy:
+      replicas: 1
+
+  postgres-measure:
+    image: postgres:16-alpine3.18
+    container_name: postgres-measure
+    networks:
+      - custom_network
+    environment:
+      POSTGRES_DB: measure_ms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cata1609
+    expose:
+      - 5432
+    deploy:
+      replicas: 1
+
+  measure-management-app:
+    build: ./MCMicroService
+    image: measure:latest
+    networks:
+      - custom_network
+    environment:
+      DB_IP: postgres-measure
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: cata1609
+      DB_DBNAME: measure_ms
+      DEVICE_CONTAINER_NAME: devices
+      DEVICE_CONTAINER_PORT: 8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-measure
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.measure.rule=Host(`measure.localhost`)"
+      - "traefik.http.services.measure.loadbalancer.server.port=8082"
+      - "traefik.http.routers.measure.middlewares=cors"
+    deploy:
+      replicas: 1
+      
+  postgres-message:
+    image: postgres:16-alpine3.18
+    container_name: postgres-message
+    networks:
+      - custom_network
+    environment:
+      POSTGRES_DB: message_ms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cata1609
+    expose:
+      - 5432
+    deploy:
+      replicas: 1
+
+  message-management-app:
+    build: ./ChatMicroService
+    image: message:latest
+    networks:
+      - custom_network
+    environment:
+      DB_IP: postgres-message
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: cata1609
+      DB_DBNAME: message_ms
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres-message
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.message.rule=Host(`message.localhost`)"
+      - "traefik.http.services.message.loadbalancer.server.port=8085"
+      - "traefik.http.routers.message.middlewares=cors"
+    deploy:
+      replicas: 1
+
+  frontend:
+    build: ./Frontend_EnergyApp
+    image: client:latest
+    container_name: client
+    ports:
+      - "4200:4200"  # Mapare port container -> port gazdă
+    environment:
+      NG_APP_HOST_USER_API: http://user.localhost
+      NG_APP_HOST_DEVICE_API: http://device.localhost
+      NG_APP_HOST_MEASURE_API: http://measure.localhost
+      NG_APP_HOST_MESSAGE_API: http://message.localhost
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=4200"
+      - "traefik.http.routers.frontend.middlewares=cors"
+    deploy:
+      replicas: 1

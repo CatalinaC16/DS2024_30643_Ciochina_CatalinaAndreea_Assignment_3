@@ -8,7 +8,7 @@ import {UserDto} from "../dtos/UserDto";
   providedIn: 'root'
 })
 export class UserService {
-  private urlAPI = 'http://localhost:8084/api/user';
+  private urlAPI = 'http://user.localhost/api/user';
 
   constructor(private http: HttpClient,
               private authService: AuthService) {

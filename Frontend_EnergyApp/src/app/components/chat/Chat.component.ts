@@ -8,8 +8,8 @@ import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-chat',
-  templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.css']
+  templateUrl: './Chat.component.html',
+  styleUrls: ['./Chat.component.css']
 })
 export class ChatComponent implements OnInit {
   chats: { user: string; messages: MessageDto[]; typing: boolean; newMessage: string }[] = [];

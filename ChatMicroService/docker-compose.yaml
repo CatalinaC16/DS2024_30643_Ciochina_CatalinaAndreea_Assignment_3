@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: postgres-message
+    image: postgres:16-alpine3.18
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=message_ms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=cata1609
+    volumes:
+      - user:/var/lib/postgresql/data
+
+  app:
+    container_name: message
+    build: .
+    ports:
+      - "8085:8085" # expunere locală a portului aplicației
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/message_ms
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=cata1609
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  message:

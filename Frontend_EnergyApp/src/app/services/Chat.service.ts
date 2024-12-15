@@ -11,7 +11,7 @@ export class ChatService {
   public newMessageNotificationSubject = new Subject<MessageDto>();
 
   connect(userId: string): void {
-    const url = `wss://localhost:8085/chat?userId=${userId}`;
+    const url = `wss://message.localhost/chat?userId=${userId}`;
     if (!this.socket$ || this.socket$.closed) {
       this.socket$ = webSocket<MessageDto>(url);
     }
@@ -62,7 +62,6 @@ export class ChatService {
       console.error('WebSocket is not connected. Seen notification not sent.');
     }
   }
-
 
   disconnect(): void {
     if (this.socket$) {
